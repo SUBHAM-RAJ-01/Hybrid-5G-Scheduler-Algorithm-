@@ -1,0 +1,382 @@
+================================================================================
+                    5G SCHEDULER SIMULATION - EXPLANATION
+================================================================================
+
+This document explains the concepts, terminology, methodology, and implementation
+of the 5G scheduler simulation project in simple terms.
+
+================================================================================
+1. WHAT IS THIS PROJECT ABOUT?
+================================================================================
+
+This project simulates how a 5G base station (cell tower) decides which users
+get to use the available radio resources at any given moment. Think of it like
+a traffic controller deciding which cars can use which lanes on a highway.
+
+In 5G networks, the base station has limited "Resource Blocks" (RBs) - these are
+small chunks of radio frequency that can carry data. Multiple users want to use
+these resources simultaneously, so the base station needs a "scheduler" to decide
+who gets what, when.
+
+We compare two scheduling strategies:
+  • Round Robin (RR): Simple and fair - everyone takes turns
+  • Proportional Fair (PF): Smart and adaptive - considers both fairness and
+    channel quality
+
+================================================================================
+2. KEY CONCEPTS & TERMINOLOGY
+================================================================================
+
+2.1 Resource Block (RB)
+-----------------------
+A Resource Block is the smallest unit of radio resources that can be allocated
+to a user in 5G. Think of it as a "time-frequency slot" - a specific frequency
+band used for a specific duration.
+
+  • In our simulation: We have 50 RBs available per TTI
+  • Real 5G: Can have hundreds of RBs depending on bandwidth
+
+2.2 Transmission Time Interval (TTI)
+------------------------------------
+A TTI is a time slot during which scheduling decisions are made and data is
+transmitted. It's like a "round" in the scheduling game.
+
+  • In our simulation: We run 1000 TTIs
+  • Real 5G: TTI is typically 1 millisecond
+  • Each TTI: The scheduler decides how to allocate all RBs to users
+
+2.3 Channel Quality Indicator (CQI)
+-----------------------------------
+CQI is a number (1-15) that tells the base station how good the radio connection
+is for each user. Higher CQI = better signal quality = more data can be sent.
+
+  • CQI 1-5: Poor signal (far from tower, obstacles, interference)
+  • CQI 6-10: Medium signal (moderate distance, some obstacles)
+  • CQI 11-15: Excellent signal (close to tower, clear line of sight)
+
+Why it matters: A user with CQI 15 can receive 5.55 Mbps per RB, while a user
+with CQI 1 can only receive 0.15 Mbps per RB.
+
+2.4 Throughput
+--------------
+Throughput is the amount of data successfully transmitted, measured in Megabits
+per second (Mbps).
+
+  • Instantaneous Throughput: How much data can be sent RIGHT NOW based on
+    current channel quality (CQI)
+  • Average Throughput: The running average of throughput over time
+  • Total Throughput: Sum of all data transmitted across all TTIs
+
+2.5 Fairness
+------------
+Fairness measures how equally resources are distributed among users. We use
+Jain's Fairness Index (JFI):
+
+  • JFI = 1.0: Perfect fairness (everyone gets exactly the same)
+  • JFI = 0.5: Moderate fairness
+  • JFI = 0.1: Very unfair (some users get much more than others)
+
+Formula: JFI = (sum of throughputs)² / (n × sum of throughputs²)
+
+================================================================================
+3. SCHEDULING ALGORITHMS
+================================================================================
+
+3.1 Round Robin (RR) Scheduler
+-------------------------------
+CONCEPT: Everyone takes turns, no matter what.
+
+How it works:
+  1. Maintain a pointer to the "current user"
+  2. Assign the next RB to the current user
+  3. Move pointer to next user
+  4. Repeat until all RBs are allocated
+
+Example with 3 users and 9 RBs:
+  RB1 → User 0
+  RB2 → User 1
+  RB3 → User 2
+  RB4 → User 0
+  RB5 → User 1
+  RB6 → User 2
+  RB7 → User 0
+  RB8 → User 1
+  RB9 → User 2
+
+ADVANTAGES:
+  ✓ Simple to implement
+  ✓ Perfectly fair in terms of RB allocation
+  ✓ Predictable behavior
+  ✓ Low computational complexity
+
+DISADVANTAGES:
+  ✗ Ignores channel quality
+  ✗ Wastes resources on users with poor channels
+  ✗ Lower total system throughput
+  ✗ Users with bad signal still get same number of RBs
+
+BEST FOR: Scenarios where fairness is more important than efficiency, or when
+all users have similar channel quality.
+
+3.2 Proportional Fair (PF) Scheduler
+------------------------------------
+CONCEPT: Balance between fairness and efficiency by considering both current
+channel quality and historical throughput.
+
+How it works:
+  1. For each RB to allocate:
+     a. Calculate PF metric for each user:
+        PF_metric = Instantaneous_Throughput / Average_Throughput
+     b. Assign RB to user with HIGHEST PF metric
+     c. Update that user's average throughput
+
+The PF Metric Explained:
+  • Numerator (Instantaneous Throughput): How good is the channel NOW?
+  • Denominator (Average Throughput): How much has this user received historically?
+  • High PF metric means: Good channel NOW + Haven't received much lately
+  • Low PF metric means: Poor channel NOW OR Already received a lot
+
+Example:
+  User A: Instantaneous = 5 Mbps, Average = 2 Mbps → PF = 5/2 = 2.5
+  User B: Instantaneous = 3 Mbps, Average = 4 Mbps → PF = 3/4 = 0.75
+  User C: Instantaneous = 4 Mbps, Average = 1 Mbps → PF = 4/1 = 4.0
+  
+  Winner: User C gets the RB (highest PF metric)
+
+ADVANTAGES:
+  ✓ Balances throughput and fairness
+  ✓ Adapts to channel conditions
+  ✓ Higher total system throughput
+  ✓ Prevents starvation (users with consistently poor channels still get served)
+  ✓ Opportunistic (exploits good channel conditions)
+
+DISADVANTAGES:
+  ✗ More complex to implement
+  ✗ Higher computational cost
+  ✗ Less predictable than RR
+  ✗ Requires tracking average throughput for each user
+
+BEST FOR: Real-world scenarios with varying channel quality, where you want to
+maximize system throughput while maintaining reasonable fairness.
+
+================================================================================
+4. METHODOLOGY
+================================================================================
+
+4.1 Simulation Setup
+--------------------
+1. Initialize System:
+   • Create 10 users with random CQI values (3-15)
+   • Allocate 50 Resource Blocks per TTI
+   • Plan to simulate 1000 TTIs
+
+2. For Each Scheduler (RR and PF):
+   • Reset all users to initial state
+   • Run simulation for 1000 TTIs
+   • Track all metrics at each TTI
+
+3. At Each TTI:
+   • Update channel conditions (CQI may change randomly)
+   • Calculate instantaneous throughput for each user based on CQI
+   • Run scheduler to allocate all 50 RBs
+   • Record allocations, throughput, and fairness metrics
+
+4. After Simulation:
+   • Calculate summary statistics
+   • Compare RR vs PF performance
+   • Generate visualizations
+   • Export results to CSV
+
+4.2 Dynamic Channel Conditions
+-------------------------------
+Real wireless channels change over time due to:
+  • User movement
+  • Environmental changes (weather, obstacles)
+  • Interference from other devices
+
+Our simulation models this by randomly updating CQI values:
+  • 10% chance of change per TTI
+  • CQI can increase or decrease by up to 2 levels
+  • Always stays within valid range (1-15)
+
+4.3 Metrics Tracked
+-------------------
+Per-TTI Metrics:
+  • RB allocations (which user got which RB)
+  • Per-user throughput
+  • Total system throughput
+  • Jain's Fairness Index
+  • User CQI values
+
+Summary Metrics:
+  • Total system throughput (sum across all TTIs)
+  • Average system throughput per TTI
+  • Average fairness index
+  • RB utilization percentage
+  • Per-user total and average throughput
+
+================================================================================
+5. IMPLEMENTATION DETAILS
+================================================================================
+
+5.1 Project Structure
+---------------------
+main.py          - Entry point, runs simulations and generates reports
+user.py          - User class with CQI, throughput tracking
+scheduler.py     - Base scheduler, RR, and PF implementations
+system.py        - 5G system simulation engine
+utils.py         - Helper functions (CQI mapping, metrics calculation)
+visualizer.py    - Plotting and visualization functions
+
+5.2 Key Classes
+---------------
+
+User Class:
+  • Attributes: user_id, cqi, instantaneous_throughput, average_throughput
+  • Methods: allocate_rb(), update_average_throughput(), get_pf_metric()
+
+BaseScheduler (Abstract):
+  • Method: schedule(users, num_rbs, tti) - must be implemented by subclasses
+
+RoundRobinScheduler:
+  • Maintains last_user_index to track position in round-robin cycle
+  • Allocates RBs sequentially to users
+
+ProportionalFairScheduler:
+  • Calculates PF metric for all users for each RB
+  • Allocates to user with highest PF metric
+  • Updates average throughput after each allocation
+
+System Class:
+  • Manages users and scheduler
+  • Executes TTI simulation loop
+  • Collects and aggregates metrics
+
+5.3 CQI to Throughput Mapping
+------------------------------
+Based on 3GPP specifications (simplified):
+
+CQI  | Throughput (Mbps/RB) | Modulation & Coding
+-----|----------------------|--------------------
+1    | 0.15                 | QPSK, very low rate
+5    | 0.88                 | QPSK, medium rate
+10   | 2.73                 | 16-QAM, high rate
+15   | 5.55                 | 64-QAM, maximum rate
+
+Higher CQI allows more complex modulation schemes and higher coding rates,
+resulting in more bits per symbol and higher throughput.
+
+5.4 Average Throughput Update (PF)
+-----------------------------------
+Uses Exponential Moving Average (EMA):
+
+  new_avg = (1 - α) × old_avg + α × instantaneous_throughput
+
+Where α (alpha) = 0.01 is the smoothing factor:
+  • Small α: More weight on history (slower adaptation)
+  • Large α: More weight on recent values (faster adaptation)
+
+This ensures the average throughput gradually reflects recent allocations.
+
+================================================================================
+6. EXPECTED RESULTS
+================================================================================
+
+6.1 Round Robin Performance
+----------------------------
+  • Equal RB allocation: Each user gets ~50 RBs per 10 TTIs (5 RBs/TTI on average)
+  • Throughput varies by CQI: Users with high CQI get more data despite equal RBs
+  • High fairness in RB allocation, but not in throughput
+  • Lower total system throughput (resources wasted on poor channels)
+
+6.2 Proportional Fair Performance
+----------------------------------
+  • Unequal RB allocation: Users with better channels get more RBs
+  • Higher total system throughput (exploits good channels)
+  • Better balance between throughput and fairness
+  • Users with poor channels still get served (prevents starvation)
+  • Fairness index typically lower than RR but still reasonable
+
+6.3 Comparison Summary
+----------------------
+Metric                    | Round Robin | Proportional Fair | Winner
+--------------------------|-------------|-------------------|--------
+Total System Throughput   | Lower       | Higher            | PF
+Fairness (RB allocation)  | Perfect     | Good              | RR
+Fairness (Throughput)     | Variable    | Balanced          | PF
+Computational Complexity  | Very Low    | Medium            | RR
+Adaptability              | None        | High              | PF
+Real-world Suitability    | Limited     | Excellent         | PF
+
+================================================================================
+7. VISUALIZATIONS GENERATED
+================================================================================
+
+1. throughput_comparison.png
+   • Bar chart comparing per-user average throughput
+   • Shows which users benefit more from each scheduler
+
+2. system_throughput_over_time.png
+   • Line plot of total system throughput across TTIs
+   • Shows temporal behavior and stability
+
+3. fairness_comparison.png
+   • Line plot of Jain's Fairness Index over time
+   • Demonstrates fairness evolution
+
+4. rb_allocation_heatmap_*.png
+   • Heatmap showing RB allocation patterns
+   • Rows = Users, Columns = TTIs, Color = Number of RBs
+   • Reveals allocation strategies visually
+
+5. summary_metrics.png
+   • 4-panel comparison of key metrics
+   • Total throughput, fairness, RB utilization, avg throughput
+
+================================================================================
+8. HOW TO RUN
+================================================================================
+
+1. Install Dependencies:
+   pip install numpy pandas matplotlib seaborn
+
+2. Run Simulation:
+   python main.py
+
+3. Check Output:
+   • CSV files in results/ folder
+   • PNG plots in plots/ folder
+   • Console output with detailed comparison
+
+4. Customize Parameters (in main.py):
+   • NUM_USERS: Number of users (default: 10)
+   • NUM_RBS: Resource blocks per TTI (default: 50)
+   • NUM_TTIS: Simulation duration (default: 1000)
+   • DYNAMIC_CHANNEL: Enable/disable channel variation (default: True)
+
+================================================================================
+9. CONCLUSION
+================================================================================
+
+This simulation demonstrates the fundamental trade-off in wireless scheduling:
+
+  ROUND ROBIN: Fairness at the cost of efficiency
+  PROPORTIONAL FAIR: Efficiency with maintained fairness
+
+In real 5G networks, Proportional Fair (or variants) is widely used because:
+  ✓ Maximizes network capacity
+  ✓ Provides good user experience for all users
+  ✓ Adapts to dynamic channel conditions
+  ✓ Prevents resource waste
+
+However, Round Robin remains valuable for:
+  ✓ Simple scenarios with homogeneous users
+  ✓ Systems where strict fairness is mandated
+  ✓ Baseline comparison for evaluating advanced schedulers
+
+The choice of scheduler depends on network goals: maximize throughput,
+ensure fairness, or balance both.
+
+================================================================================
+END OF EXPLANATION
+================================================================================

@@ -53,7 +53,6 @@ def plot_throughput_comparison(rr_summary, pf_summary, num_users):
     plt.tight_layout()
     plt.savefig('plots/throughput_comparison.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print("✓ Saved: plots/throughput_comparison.png")
 
 
 def plot_system_throughput_over_time(rr_results, pf_results, window=50):
@@ -89,7 +88,6 @@ def plot_system_throughput_over_time(rr_results, pf_results, window=50):
     plt.tight_layout()
     plt.savefig('plots/system_throughput_over_time.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print("✓ Saved: plots/system_throughput_over_time.png")
 
 
 def plot_fairness_comparison(rr_results, pf_results):
@@ -124,7 +122,6 @@ def plot_fairness_comparison(rr_results, pf_results):
     plt.tight_layout()
     plt.savefig('plots/fairness_comparison.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print("✓ Saved: plots/fairness_comparison.png")
 
 
 def plot_rb_allocation_heatmap(results, scheduler_name, num_users, sample_ttis=100):
@@ -167,7 +164,6 @@ def plot_rb_allocation_heatmap(results, scheduler_name, num_users, sample_ttis=1
     filename = f'plots/rb_allocation_heatmap_{scheduler_name.lower().replace(" ", "_")}.png'
     plt.savefig(filename, dpi=300, bbox_inches='tight')
     plt.close()
-    print(f"✓ Saved: {filename}")
 
 
 def plot_summary_metrics(rr_summary, pf_summary):
@@ -235,7 +231,6 @@ def plot_summary_metrics(rr_summary, pf_summary):
     plt.tight_layout()
     plt.savefig('plots/summary_metrics.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print("✓ Saved: plots/summary_metrics.png")
 
 
 def generate_all_plots(rr_results, pf_results, rr_summary, pf_summary, num_users):
@@ -249,9 +244,7 @@ def generate_all_plots(rr_results, pf_results, rr_summary, pf_summary, num_users
         pf_summary: Summary statistics from Proportional Fair scheduler
         num_users: Number of users
     """
-    print("\n" + "="*60)
-    print("Generating Visualizations...")
-    print("="*60 + "\n")
+    print("\nGenerating visualizations...", end='')
     
     create_output_dirs()
     
@@ -262,6 +255,4 @@ def generate_all_plots(rr_results, pf_results, rr_summary, pf_summary, num_users
     plot_rb_allocation_heatmap(pf_results, "Proportional Fair", num_users)
     plot_summary_metrics(rr_summary, pf_summary)
     
-    print("\n" + "="*60)
-    print("All visualizations generated successfully!")
-    print("="*60 + "\n")
+    print(" Done ✓")

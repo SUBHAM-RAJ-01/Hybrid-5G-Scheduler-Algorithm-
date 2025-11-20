@@ -89,23 +89,14 @@ class System:
         Returns:
             List of TTI results
         """
-        print(f"\n{'='*60}")
-        print(f"Starting Simulation: {self.scheduler.name}")
-        print(f"Users: {self.num_users}, RBs: {self.num_rbs}, TTIs: {num_ttis}")
-        print(f"Dynamic Channel: {dynamic_channel}")
-        print(f"{'='*60}\n")
+        # Minimal output - just show progress
         
         for tti in range(num_ttis):
             self.run_tti(dynamic_channel=dynamic_channel)
             
             if (tti + 1) % log_interval == 0:
-                total_tput = self.tti_results[-1]['total_throughput']
-                fairness = self.tti_results[-1]['fairness_index']
-                print(f"TTI {tti + 1}/{num_ttis} | "
-                      f"Total Throughput: {total_tput:.2f} Mbps | "
-                      f"Fairness: {fairness:.4f}")
-        
-        print(f"\nSimulation Complete: {self.scheduler.name}\n")
+                progress = (tti + 1) / num_ttis * 100
+                print(f"      Progress: {progress:.0f}% ({tti + 1}/{num_ttis} TTIs)", end='\r')
         return self.tti_results
     
     def get_summary_statistics(self):

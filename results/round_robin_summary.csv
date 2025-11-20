@@ -1,0 +1,25 @@
+Metric,Value
+Total System Throughput (Mbps),58766005.299998775
+Avg System Throughput (Mbps/TTI),58766.005299998775
+Avg Fairness Index,0.7739588508998129
+RB Utilization (%),100.0
+User 0 Total Throughput (Mbps),3743871.8499999703
+User 1 Total Throughput (Mbps),4692069.999999944
+User 2 Total Throughput (Mbps),8419174.349999685
+User 3 Total Throughput (Mbps),6111513.449999923
+User 4 Total Throughput (Mbps),10771950.349999782
+User 5 Total Throughput (Mbps),6272845.499999598
+User 6 Total Throughput (Mbps),3197964.5499999556
+User 7 Total Throughput (Mbps),10404614.949999884
+User 8 Total Throughput (Mbps),2545194.4500000416
+User 9 Total Throughput (Mbps),2606805.8499999936
+User 0 Avg Throughput (Mbps/TTI),3743.8718499999704
+User 1 Avg Throughput (Mbps/TTI),4692.069999999944
+User 2 Avg Throughput (Mbps/TTI),8419.174349999685
+User 3 Avg Throughput (Mbps/TTI),6111.513449999923
+User 4 Avg Throughput (Mbps/TTI),10771.95034999978
+User 5 Avg Throughput (Mbps/TTI),6272.845499999597
+User 6 Avg Throughput (Mbps/TTI),3197.9645499999556
+User 7 Avg Throughput (Mbps/TTI),10404.614949999885
+User 8 Avg Throughput (Mbps/TTI),2545.194450000042
+User 9 Avg Throughput (Mbps/TTI),2606.8058499999934
