@@ -1,78 +1,112 @@
-# 5G Scheduler Simulation: Round Robin vs Proportional Fair
+# Hybrid 5G Scheduler Algorithm
 
-A Python 3.10.7-compatible simulation project that models how a 5G base station schedules Resource Blocks (RBs) among multiple users using Round Robin and Proportional Fair scheduling algorithms.
+This project simulates how a 5G base station allocates **Resource Blocks (RBs)** to multiple users and compares two common scheduling strategies:
 
-## Features
+- **Round Robin (RR)** – gives turns to users in sequence
+- **Proportional Fair (PF)** – balances fairness and throughput using user channel quality + throughput history
 
-- **Two Scheduling Algorithms**: Round Robin (RR) and Proportional Fair (PF)
-- **Realistic 5G Modeling**: CQI-based throughput mapping, multiple users, configurable RBs
-- **Comprehensive Metrics**: Per-user throughput, system throughput, fairness index, RB utilization
-- **Data Export**: All results saved to CSV files using pandas
-- **Visualizations**: Line plots, bar charts, and heatmaps comparing schedulers
+The simulation runs for multiple **TTIs (Transmission Time Intervals)**, stores results, and generates comparison plots.
+
+---
+
+## What this project demonstrates
+
+- How scheduler choice changes total system throughput
+- How fairly users are treated over time (Jain’s fairness index)
+- How CQI (channel quality) impacts per-user data rates
+- Trade-off between maximum throughput and balanced allocation
+
+---
+
+## Key features
+
+- RR and PF scheduler implementations
+- CQI-based throughput modelling with optional dynamic channel variation
+- Per-TTI and summary CSV export
+- Auto-generated visualizations (throughput, fairness, heatmaps, summary charts)
+- Config-driven simulation settings (`config.py`)
+
+---
 
 ## Requirements
 
-- Python 3.10.7
-- NumPy
-- Pandas
-- Matplotlib
-- Seaborn (optional)
+- Python 3.10.x (project dependencies are pinned for this version)
+- `numpy`, `pandas`, `matplotlib`, `seaborn`
 
-## Installation
+Install dependencies:
 
-Install required packages:
-```bash
-pip install numpy pandas matplotlib seaborn
-```
-
-Or use requirements.txt:
 ```bash
 pip install -r requirements.txt
 ```
 
-## Usage
+If you are using a newer Python version and pinned installs fail, install compatible latest packages manually:
 
-### Run Simulation
 ```bash
-# Use your system's Python (adjust path as needed)
-python main.py
-
-# Or if you have multiple Python versions:
-C:\Users\YourUsername\AppData\Local\Programs\Python\Python312\python.exe main.py
+pip install numpy pandas matplotlib seaborn
 ```
 
-### Run Tests (Optional)
+---
+
+## Quick start
+
+Run the simulation:
+
+```bash
+python main.py
+```
+
+Run tests:
+
 ```bash
 python test_simulation.py
 ```
 
-### Customize Parameters
-Edit `config.py` to change simulation parameters without modifying code.
+---
 
-## Project Structure
+## Configuration
 
-```
-5G-Scheduler-Simulation/
-├── main.py              # Entry point - run this
-├── user.py              # User class with CQI tracking
-├── scheduler.py         # RR and PF implementations
-├── system.py            # Simulation engine
-├── utils.py             # Helper functions
-├── visualizer.py        # Plotting functions
-├── config.py            # Configuration parameters
-├── test_simulation.py   # Unit tests
-├── requirements.txt     # Dependencies
-├── README.md            # This file
-├── Explain.txt          # Detailed concept explanations
-├── Mermaid_Diagrams.md  # Flow diagrams for presentations
-├── results/             # CSV output (auto-generated)
-└── plots/               # Visualization output (auto-generated)
-```
+All simulation parameters are in `/tmp/workspace/SUBHAM-RAJ-01/Hybrid-5G-Scheduler-Algorithm-/config.py`.
+
+Useful settings:
+
+- `NUM_USERS`, `NUM_RBS`, `NUM_TTIS`
+- `DYNAMIC_CHANNEL`, `CQI_CHANGE_PROBABILITY`
+- `MIN_CQI`, `MAX_CQI`
+- `PF_ALPHA` (PF smoothing factor)
+
+You can switch between small/large presets by uncommenting preset blocks at the bottom of `config.py`.
+
+---
 
 ## Output
 
-- **CSV files**: `results/` folder (per-TTI data and summaries)
-- **Visualizations**: `plots/` folder (6 comparison charts)
-- **Console**: Clean performance comparison
+After each run:
 
-Files are automatically replaced on each run (no duplicates).
+- `results/`
+  - `round_robin_tti_results.csv`
+  - `proportional_fair_tti_results.csv`
+  - scheduler summary CSV files
+- `plots/`
+  - throughput comparison
+  - fairness comparison
+  - RB allocation heatmaps
+  - summary metric charts
+
+Output files are overwritten on each run so you always see the latest experiment results.
+
+---
+
+## Project structure
+
+```
+Hybrid-5G-Scheduler-Algorithm-/
+├── main.py              # Entry point
+├── scheduler.py         # Round Robin + Proportional Fair logic
+├── system.py            # Core simulation engine
+├── user.py              # User model (CQI, throughput tracking)
+├── config.py            # All tunable parameters
+├── visualizer.py        # Plot generation
+├── test_simulation.py   # Test suite
+├── results/             # Generated CSV outputs
+└── plots/               # Generated figures
+```
